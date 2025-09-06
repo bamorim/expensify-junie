@@ -6,9 +6,9 @@ A modern, type-safe expense management system built with the T3 Stack.
 
 ## Features
 
-- 🔒 Enterprise-grade authentication with WorkOS
-- 📊 Advanced policy management with rolling windows and group-based rules
-- 💼 Multi-organization support
+- 🔐 Magic code email-based authentication (placeholder for v1)
+- 📋 Policy management per category with limits and routing (org-wide and user-specific)
+- 💼 Multi-organization support with strict data isolation
 - ✨ Modern React UI with server components
 - 🔍 Type-safe from database to UI
 
@@ -37,7 +37,7 @@ A modern, type-safe expense management system built with the T3 Stack.
    ```bash
    cp .env.example .env
    ```
-   Then edit `.env` with your database and WorkOS credentials
+   Then edit `.env` with your database URL and email provider credentials (or use the dev stub).
 
 4. Start the database:
    ```bash

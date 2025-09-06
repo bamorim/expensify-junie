@@ -59,7 +59,66 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    memberships   Membership[]
+    invitations   Invitation[] @relation("InvitationRecipient")
+    sentInvitations Invitation[] @relation(name: "InvitationInviter", fields: [], references: [])
 }
+
+model Organization {
+    id        String   @id @default(cuid())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    memberships Membership[]
+    invitations Invitation[]
+
+    @@index([name])
+}
+
+enum Role {
+    ADMIN
+    MEMBER
+}
+
+model Membership {
+    id        String   @id @default(cuid())
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    org       Organization @relation(fields: [orgId], references: [id])
+    orgId     String
+    role      Role
+    createdAt DateTime @default(now())
+
+    @@unique([userId, orgId])
+    @@index([orgId])
+}
+
+enum InvitationStatus {
+    PENDING
+    ACCEPTED
+    EXPIRED
+    CANCELED
+}
+
+model Invitation {
+    id         String   @id @default(cuid())
+    org        Organization @relation(fields: [orgId], references: [id])
+    orgId      String
+    email      String
+    token      String   @unique
+    inviter    User?    @relation(name: "InvitationInviter", fields: [inviterId], references: [id])
+    inviterId  String?
+    recipient  User?    @relation("InvitationRecipient", fields: [recipientId], references: [id])
+    recipientId String?
+    status     InvitationStatus @default(PENDING)
+    createdAt  DateTime @default(now())
+    expiresAt  DateTime
+
+    @@index([orgId, email])
+    @@unique([orgId, email, status])
+}
+
 
 model VerificationToken {
     identifier String

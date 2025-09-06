@@ -1,0 +1,1 @@
+This directory holds Architectural Decision Records (ADRs). Use docs/templates/adr.md as the template when making significant architectural decisions.
