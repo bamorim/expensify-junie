@@ -23,19 +23,19 @@ Implement organization creation, invitations (email stub), role-based access (Ad
 
 ## Acceptance Criteria
 
-- [ ] Users can create organizations; creator becomes Admin
-- [ ] Admins can invite users via email (stubbed delivery)
-- [ ] Users can accept invites and join orgs
-- [ ] Roles enforced in API layer
-- [ ] Tests cover membership flows and org-scoping
+- [x] Users can create organizations; creator becomes Admin
+- [x] Admins can invite users via email (stubbed delivery)
+- [x] Users can accept invites and join orgs
+- [x] Roles enforced in API layer
+- [x] Tests cover membership flows and org-scoping
 
 ## TODOs
 
-- [ ] Define tRPC procedures for org create, invite, accept
-- [ ] Add role checks with middleware
-- [ ] Create invite token model and flow
-- [ ] Mock email sender
-- [ ] Write unit/integration tests
+- [x] Define tRPC procedures for org create, invite, accept
+- [x] Add role checks with middleware
+- [x] Create invite token model and flow
+- [x] Mock email sender
+- [x] Write unit/integration tests
 
 ## Progress Updates
 
@@ -45,12 +45,18 @@ Implement organization creation, invitations (email stub), role-based access (Ad
 **Blockers**: Need to run migration and add tests.
 **Next Steps**: Create migration and write basic tests for org flows.
 
+### 2025-09-07 - Junie
+**Status**: Complete
+**Progress**: Database migration applied successfully. Created comprehensive test suite with proper auth mocking for org router covering all flows: create org, invite users, and accept invitations.
+**Blockers**: None
+**Next Steps**: Task complete. Ready for code review.
+
 ## Completion Checklist
 
-- [ ] All acceptance criteria met
-- [ ] Code follows project standards
-- [ ] Tests written and passing
-- [ ] Documentation updated (if needed)
+- [x] All acceptance criteria met
+- [x] Code follows project standards
+- [x] Tests written and passing
+- [x] Documentation updated (if needed)
 - [ ] Code review completed
 
 ## Notes

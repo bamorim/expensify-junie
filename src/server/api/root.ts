@@ -1,4 +1,3 @@
-import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -9,7 +8,6 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { orgRouter } from "~/server/api/routers/org";
 
 export const appRouter = createTRPCRouter({
-  post: postRouter,
   org: orgRouter,
 });
 

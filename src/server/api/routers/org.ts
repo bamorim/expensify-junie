@@ -10,11 +10,136 @@ const inviteInput = z.object({
 const acceptInviteInput = z.object({ token: z.string().min(10) });
 
 export const orgRouter = createTRPCRouter({
+  getUserOrganizations: protectedProcedure
+    .query(async ({ ctx }) => {
+      const memberships = await ctx.db.membership.findMany({
+        where: { userId: ctx.session.user.id },
+        include: {
+          org: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return memberships.map((membership) => ({
+        id: membership.org.id,
+        name: membership.org.name,
+        role: membership.role,
+        createdAt: membership.org.createdAt,
+      }));
+    }),
+
+  getOrgMembers: protectedProcedure
+    .input(z.object({ orgId: z.string().cuid() }))
+    .query(async ({ ctx, input }) => {
+      // Check if user is a member of this organization
+      const userMembership = await ctx.db.membership.findFirst({
+        where: { orgId: input.orgId, userId: ctx.session.user.id },
+      });
+      
+      if (!userMembership) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You must be a member of this organization to view members",
+        });
+      }
+
+      // Get organization info and all members
+      const org = await ctx.db.organization.findUnique({
+        where: { id: input.orgId },
+        include: {
+          memberships: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+            orderBy: [
+              { role: "asc" }, // ADMIN first, then MEMBER
+              { createdAt: "asc" }
+            ],
+          },
+        },
+      });
+
+      if (!org) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
+      }
+
+      return {
+        id: org.id,
+        name: org.name,
+        createdAt: org.createdAt,
+        members: org.memberships.map((membership) => ({
+          id: membership.user.id,
+          name: membership.user.name,
+          email: membership.user.email,
+          role: membership.role,
+          joinedAt: membership.createdAt,
+        })),
+      };
+    }),
+
+  getPendingInvitations: protectedProcedure
+    .input(z.object({ orgId: z.string().cuid() }))
+    .query(async ({ ctx, input }) => {
+      // Check if user is an admin of this organization
+      const userMembership = await ctx.db.membership.findFirst({
+        where: { orgId: input.orgId, userId: ctx.session.user.id },
+      });
+      
+      if (!userMembership || userMembership.role !== "ADMIN") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin role required to view pending invitations",
+        });
+      }
+
+      const pendingInvitations = await ctx.db.invitation.findMany({
+        where: { 
+          orgId: input.orgId,
+          status: "PENDING",
+          expiresAt: {
+            gt: new Date(), // Only non-expired invitations
+          },
+        },
+        include: {
+          inviter: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return pendingInvitations.map((invitation) => ({
+        id: invitation.id,
+        email: invitation.email,
+        token: invitation.token,
+        createdAt: invitation.createdAt,
+        expiresAt: invitation.expiresAt,
+        inviter: {
+          id: invitation.inviter?.id,
+          name: invitation.inviter?.name,
+          email: invitation.inviter?.email,
+        },
+      }));
+    }),
+
   create: protectedProcedure
     .input(createOrgInput)
     .mutation(async ({ ctx, input }) => {
       // Create organization and membership as ADMIN
-      const org = await ctx.db.organization.create({
+      return await ctx.db.organization.create({
         data: {
           name: input.name,
           memberships: {
@@ -25,7 +150,6 @@ export const orgRouter = createTRPCRouter({
           },
         },
       });
-      return org;
     }),
 
   invite: protectedProcedure
@@ -81,7 +205,7 @@ export const orgRouter = createTRPCRouter({
         update: {},
       });
 
-      // Mark invitation as accepted and link recipient
+      // Mark the invitation as accepted and link the recipient
       await ctx.db.invitation.update({
         where: { id: invite.id },
         data: { status: "ACCEPTED", recipientId: ctx.session.user.id },
