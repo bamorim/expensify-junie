@@ -50,6 +50,7 @@ model User {
     memberships   Membership[]
     invitations   Invitation[] @relation("InvitationRecipient")
     sentInvitations Invitation[] @relation(name: "InvitationInviter", fields: [], references: [])
+    policies      Policy[]
 }
 
 model Organization {
@@ -61,6 +62,7 @@ model Organization {
     memberships Membership[]
     invitations Invitation[]
     categories  Category[]
+    policies    Policy[]
 
     @@index([name])
 }
@@ -73,9 +75,53 @@ model Category {
     orgId       String
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
+    policies    Policy[]
 
     @@unique([orgId, name])
     @@index([orgId])
+}
+
+enum Period {
+    PER_EXPENSE
+    DAILY
+    WEEKLY
+    MONTHLY
+}
+
+enum ReviewRoute {
+    AUTO_APPROVE
+    MANUAL_REVIEW
+}
+
+model Policy {
+    id          String      @id @default(cuid())
+    name        String
+    description String?
+    
+    // Organization scoping
+    org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+    orgId       String
+    
+    // Category this policy applies to
+    category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    categoryId  String
+    
+    // Optional user for user-specific policies (null means org-wide)
+    user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String?
+    
+    // Policy configuration
+    maxAmount   Float
+    period      Period
+    reviewRoute ReviewRoute
+    
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+    
+    @@unique([orgId, categoryId, userId]) // Ensures one policy per org/category/user combination
+    @@index([orgId])
+    @@index([categoryId])
+    @@index([userId])
 }
 
 enum Role {
