@@ -4,7 +4,7 @@
 
 - **Task ID**: `TASK-003`
 - **Title**: User & Organization Management (FR1, FR2)
-- **Status**: `In Progress`
+- **Status**: `Done`
 - **Priority**: `P0`
 - **Created**: 2025-09-06
 - **Updated**: 2025-09-06

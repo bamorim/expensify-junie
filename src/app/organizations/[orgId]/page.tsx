@@ -77,12 +77,19 @@ export default async function OrganizationPage({ params }: OrganizationPageProps
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap justify-center">
             <Link
               href="/organizations"
               className="rounded-full bg-white/10 px-6 py-3 font-semibold no-underline transition hover:bg-white/20"
             >
               ← Back to Organizations
+            </Link>
+            
+            <Link
+              href={`/organizations/${orgId}/categories`}
+              className="rounded-full bg-green-600 px-6 py-3 font-semibold no-underline transition hover:bg-green-700"
+            >
+              View Categories
             </Link>
             
             {/* Check if current user is admin to show admin link */}

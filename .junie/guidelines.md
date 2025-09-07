@@ -116,6 +116,11 @@ When making architectural decisions:
 - **Health Checks**: Implement system health endpoints
 - **Logging**: Structured logging for debugging and monitoring
 
+## Running tasks from packages
+- Never use npx, instead only use installed packages with `pnpm exec`
+- If there is a well defined task in `package.json`, prefer using it with `pnpm run`
+- Never use `npm`, use `pnpm` instead
+
 # Task Management Guidelines
 
 ## Task Creation
